@@ -3,3 +3,7 @@ alembic
 pydantic
 psycopg2-binary  # Driver PostgreSQL
 python-dotenv    # Untuk keamanan credentials
+flask
+pyjwt
+bcrypt
+flasgger
