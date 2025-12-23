@@ -7,3 +7,4 @@ flask
 pyjwt
 bcrypt
 flasgger
+pytest
