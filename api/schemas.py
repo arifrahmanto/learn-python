@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import field_validator, ConfigDict, BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from enum import Enum
@@ -32,9 +32,7 @@ class AccountCreate(BaseModel):
 
 class AccountResponse(AccountCreate):
     id: int
-    
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- SCHEMAS UNTUK TRANSAKSI ---
 class TransactionEntryCreate(BaseModel):
@@ -47,7 +45,8 @@ class TransactionCreate(BaseModel):
     reference_no: Optional[str] = None
     entries: List[TransactionEntryCreate]
 
-    @validator('entries')
+    @field_validator('entries')
+    @classmethod
     def validate_balance(cls, v):
         """Validasi Double Entry: Total Debit harus sama dengan Total Kredit"""
         total_debit = sum(e.amount for e in v if e.entry_type == EntryTypeEnum.DEBIT)
@@ -60,18 +59,15 @@ class TransactionCreate(BaseModel):
 
 class TransactionEntryResponse(TransactionEntryCreate):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TransactionResponse(BaseModel):
     id: int
     transaction_date: datetime
     description: str
-    reference_no: Optional[str]
+    reference_no: Optional[str] = None
     entries: List[TransactionEntryResponse]
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # Schema untuk satu baris akun (misal: "Kas Masjid": 5.000.000)
 class BalanceLineItem(BaseModel):
@@ -103,7 +99,7 @@ class BalanceSheetResponse(BaseModel):
 class LedgerEntryItem(BaseModel):
     transaction_date: datetime
     description: str
-    reference_no: Optional[str]
+    reference_no: Optional[str] = None
     debit: float
     credit: float
     balance: float  # Saldo setelah transaksi ini
@@ -112,8 +108,8 @@ class LedgerResponse(BaseModel):
     account_id: int
     account_name: str
     account_code: str
-    period_start: Optional[str]
-    period_end: Optional[str]
+    period_start: Optional[str] = None
+    period_end: Optional[str] = None
     opening_balance: float      # Saldo sebelum periode yang dipilih
     closing_balance: float      # Saldo akhir periode
     entries: List[LedgerEntryItem]
